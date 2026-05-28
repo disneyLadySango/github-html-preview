@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub HTML Preview",
+  "version": "0.1.0",
+  "description": "Preview .html and .htm files from GitHub blob pages in an extension tab.",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": [
+    "https://github.com/*",
+    "https://raw.githubusercontent.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "sandbox": "sandbox allow-scripts allow-forms allow-modals allow-popups; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:; style-src 'self' 'unsafe-inline' https: http: data: blob:; img-src * data: blob:; font-src * data:; connect-src *;"
+  },
+  "sandbox": {
+    "pages": ["renderer.html"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["preview.html", "preview.css", "preview.js"],
+      "matches": ["https://github.com/*"]
+    }
+  ]
+}

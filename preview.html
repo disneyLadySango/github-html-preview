@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GitHub HTML Preview</title>
+    <link rel="stylesheet" href="preview.css">
+  </head>
+  <body>
+    <header class="toolbar">
+      <div>
+        <h1>GitHub HTML Preview</h1>
+        <p id="sourceUrl"></p>
+      </div>
+      <div class="toolbar-actions">
+        <button id="runScriptsButton" type="button" hidden>Run scripts</button>
+        <button id="openRawButton" type="button">Open source</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="urlFormPanel" class="url-panel" hidden>
+        <form id="urlForm">
+          <label for="urlInput">GitHub HTML file URL</label>
+          <div class="url-row">
+            <input
+              id="urlInput"
+              type="url"
+              placeholder="https://github.com/owner/repo/blob/main/file.html"
+              autocomplete="off"
+              spellcheck="false"
+            >
+            <button type="submit">Preview</button>
+          </div>
+        </form>
+      </section>
+      <div id="status" class="status">Loading preview...</div>
+      <iframe id="previewFrame" title="HTML preview"></iframe>
+    </main>
+
+    <script src="preview.js"></script>
+  </body>
+</html>
