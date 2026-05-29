@@ -90,7 +90,7 @@ async function loadPreview() {
   openRawButton.disabled = false;
   urlFormPanel.hidden = true;
 
-  await loadPreviewUrl(previewUrl);
+  await loadPreviewUrl(previewUrl, { historyMode: "replace" });
 }
 
 async function loadStoredPreview(id) {
@@ -115,6 +115,9 @@ async function loadStoredPreview(id) {
   openRawButton.disabled = !preview.sourceUrl;
   urlFormPanel.hidden = true;
   await renderHtml(preview.html, { allowInlineScripts: false });
+  if (currentPreviewUrl) {
+    updatePreviewHistory(currentPreviewUrl, "replace");
+  }
   chrome.storage.session.remove(storageKey);
 }
 
@@ -166,7 +169,7 @@ async function renderHtml(html, options = {}) {
   statusEl.hidden = true;
 }
 
-async function loadPreviewUrl(previewUrl) {
+async function loadPreviewUrl(previewUrl, options = {}) {
   currentPreviewUrl = previewUrl;
   sourceUrlEl.textContent = previewUrl;
   openRawButton.disabled = false;
@@ -175,9 +178,33 @@ async function loadPreviewUrl(previewUrl) {
     setStatus("Loading preview...");
     console.info(LOG_PREFIX, "Fetching preview URL", { previewUrl });
     await renderHtml(await fetchPreviewText(previewUrl), { allowInlineScripts: false });
+    if (options.historyMode) {
+      updatePreviewHistory(currentPreviewUrl, options.historyMode);
+    }
   } catch (error) {
     console.error(LOG_PREFIX, "Could not load URL-based preview", error);
     setStatus(`Could not load preview. ${error.message}`, true);
+  }
+}
+
+function updatePreviewHistory(previewUrl, mode) {
+  const url = new URL(location.href);
+  url.search = `rawUrl=${encodeURIComponent(previewUrl)}`;
+  const state = { previewUrl };
+
+  console.info(LOG_PREFIX, "Updating preview history", {
+    mode,
+    previewUrl,
+    url: url.href
+  });
+
+  if (mode === "replace") {
+    history.replaceState(state, "", url.href);
+    return;
+  }
+
+  if (mode === "push") {
+    history.pushState(state, "", url.href);
   }
 }
 
@@ -536,7 +563,7 @@ window.addEventListener("message", (event) => {
   }
 
   if (isHtmlUrl(targetUrl)) {
-    loadPreviewUrl(targetUrl);
+    loadPreviewUrl(targetUrl, { historyMode: "push" });
     return;
   }
 
@@ -563,6 +590,21 @@ urlForm.addEventListener("submit", (event) => {
 window.addEventListener("unload", () => {
   if (objectUrl) {
     URL.revokeObjectURL(objectUrl);
+  }
+});
+
+window.addEventListener("popstate", (event) => {
+  const previewUrl =
+    event.state?.previewUrl ||
+    normalizePreviewUrl(new URLSearchParams(location.search).get("rawUrl"));
+
+  console.info(LOG_PREFIX, "Preview history popstate", {
+    state: event.state,
+    previewUrl
+  });
+
+  if (previewUrl) {
+    loadPreviewUrl(previewUrl);
   }
 });
 

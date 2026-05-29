@@ -16,6 +16,7 @@ https://github.com/{owner}/{repo}/blob/{branch}/path/to/file.html
 - inline CSS はデフォルトで反映します。
 - inline JavaScript はデフォルト無効です。`Run scripts` を押した場合だけ実行します。
 - preview内の `.html` / `.htm` リンクは、同じpreviewタブ内で開きます。
+- preview内リンクで移動した場合、ブラウザの戻る/進むで前後のHTMLに戻れます。
 - GitHubのSPA遷移後も、HTMLファイルページでボタンが出るようにしています。
 - private repoでも、ブラウザで閲覧権限があるHTMLファイルならpreviewできます。
 
